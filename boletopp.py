@@ -45,6 +45,7 @@ from reportlab.platypus import (
 
 BASE_URL = "https://www2.agencianet.fazenda.df.gov.br/extranet.publica/GerarBoletoInternet"
 PASTA_SAIDA = r"C:\PP"
+ORGAO_DF_LEGAL = "092"  # órgão gerador dos lançamentos da DF Legal
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 COTAS_POR_PAGINA = 6
 
@@ -418,6 +419,7 @@ def parse_dados_e_cotas(texto):
         "uf": _buscar(r"\bUF\s+([A-Z]{2})\s+CEP", texto),
         "cep": _buscar(r"CEP\s+([\d.-]+)\s+TELEFONE", texto),
         "telefone": _buscar(r"TELEFONE\s+(\([\d]+\)[\d-]+)", texto),
+        "orgao_codigo": _buscar(r"(?<!NOME )[ÓO]RG[ÃA]O GERADOR\s+(\d+)", texto),
         "orgao_nome": _buscar(r"NOME [ÓO]RG[ÃA]O GERADOR\s+(.*?)\s+C[ÓO]DIGO DA RECEITA", texto),
         "receita_nome": _buscar(r"NOME DA RECEITA\s+(.*?)\s+(?:№|N[ºo])\s*LAN[ÇC]AMENTO", texto),
         "numero_lancamento": _buscar(r"LAN[ÇC]AMENTO\s+(\d{6,})", texto),

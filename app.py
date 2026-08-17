@@ -35,6 +35,20 @@ def normalizar_numero(numero):
     return numero
 
 
+def _exigir_df_legal(dados):
+    """Só lançamentos do órgão 092 são da DF Legal — os demais não cabem no
+    documento que este sistema emite (carta e identidade visual da DF Legal)."""
+    codigo = (dados.get("orgao_codigo") or "").strip()
+    if codigo == boletopp.ORGAO_DF_LEGAL:
+        return
+    orgao = (dados.get("orgao_nome") or "").strip()
+    origem = f"órgão gerador {orgao}" if orgao else "órgão gerador não identificado"
+    raise ValueError(
+        f"Lançamento não é da DF Legal — {origem}. "
+        f"Este sistema emite apenas boletos do órgão {boletopp.ORGAO_DF_LEGAL} (DF-LEGAL)."
+    )
+
+
 def consultar_lancamento(numero, com_linha_digitavel=True):
     """Consulta pública + parsing, na mesma sequência usada por boletopp.main()."""
     texto = boletopp.buscar_pagina(numero, "01")
@@ -46,6 +60,7 @@ def consultar_lancamento(numero, com_linha_digitavel=True):
         raise ValueError("Lançamento não encontrado. Confira o número informado.")
 
     dados, cotas, linha_inicial, observacoes = boletopp.parse_dados_e_cotas(texto)
+    _exigir_df_legal(dados)
     if not cotas:
         raise ValueError("Não foi possível localizar a tabela de cotas desse lançamento.")
 
