@@ -9,7 +9,7 @@ SISLANÇA -> Informativo em PDF (versão final v2)
 - Desenha um PDF final próprio, com uma ficha por cota mostrando parcela,
   vencimento, valor e o código de barras (a partir da linha digitável real,
   extraída do boleto oficial — não inventada)
-- Salva em C:\PP\<numero_sislanca>.pdf
+- Salva em C:\\PP\\<numero_sislanca>.pdf
 
 INSTALAÇÃO
 ----------
