@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SISLANCA Boletos — DF Legal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=Archivo+Narrow:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-marca">
+      <div class="sidebar-logo"><img src="{{ url_for('logo') }}" alt="DF Legal"></div>
+      <div class="sidebar-sub">Emissão de boletos — preço público</div>
+    </div>
+
+    <nav class="nav">
+      <button data-tela="painel"><span>Painel</span><span class="badge"></span></button>
+      <button data-tela="consulta" class="ativo"><span>Consulta</span><span class="badge"></span></button>
+      <button data-tela="lote"><span>Emissão em lote</span><span class="badge" id="badge-lote"></span></button>
+      <button data-tela="historico"><span>Histórico</span><span class="badge" id="badge-historico"></span></button>
+    </nav>
+
+    <div class="sessao">
+      <div class="rotulo">SESSÃO</div>
+      <div class="sessao-nome" id="sessao-nome">Não conectado</div>
+      <div class="sessao-org">Subsecretaria de Receita Fiscal</div>
+      <button class="btn-linha" id="btn-sessao" style="margin-top: 12px; width: 100%; text-align: left; padding: 8px 10px;">Entrar</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <header class="topbar">
+      <div style="min-width: 0;">
+        <div class="kicker" id="tela-kicker">CONSULTA E EMISSÃO</div>
+        <div class="topbar-titulo" id="tela-titulo">Consultar lançamento</div>
+      </div>
+      <div class="modo">
+        <button class="seg ativo" data-modo="interna">Área interna</button>
+        <button class="seg" data-modo="publica">Consulta pública</button>
+      </div>
+      <div class="fila">
+        <span class="ajuda">Fila</span>
+        <span class="fila-valor" id="fila-label">0 de 0</span>
+      </div>
+    </header>
+
+    <!-- ============ PAINEL ============ -->
+    <section class="tela" id="tela-painel">
+      <div class="kpis" id="painel-kpis"></div>
+      <div class="painel-corpo">
+        <div class="painel-esq">
+          <div class="cabecalho-secao">
+            <h2 class="secao">Emissões dos últimos 7 dias</h2>
+            <span class="ajuda">PDFs gerados por dia</span>
+          </div>
+          <div class="barras" id="painel-barras"></div>
+          <div class="barras-rotulos" id="painel-rotulos"></div>
+
+          <div style="margin-top: 36px; border-top: 2px solid var(--linha-forte); padding-top: 18px;">
+            <h2 class="secao" style="margin-bottom: 14px;">Últimas emissões</h2>
+            <table>
+              <thead><tr><th>LANÇAMENTO</th><th>INTERESSADO</th><th>COTAS</th><th>EMITIDO</th><th>SITUAÇÃO</th></tr></thead>
+              <tbody id="painel-recentes"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="painel-dir">
+          <div class="cabecalho-secao"><h2 class="secao">Atalhos</h2></div>
+          <p class="ajuda" style="margin-top: 14px;">Consulte um lançamento pelo número para ver as cotas em aberto e gerar o PDF com as fichas e códigos de barras.</p>
+          <button class="btn" id="btn-ir-consulta" style="margin-top: 20px; width: 100%; text-align: left;">Consultar um lançamento</button>
+          <button class="btn-linha" id="btn-ir-lote" style="margin-top: 12px; width: 100%; padding: 12px 16px;">Processar vários de uma vez</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONSULTA ============ -->
+    <section class="tela ativa" id="tela-consulta">
+      <div class="consulta-barra">
+        <div style="flex: 0 0 320px;">
+          <label class="rotulo" style="display: block; margin-bottom: 6px;">NÚMERO DO LANÇAMENTO</label>
+          <input class="campo campo-numero" id="input-numero" placeholder="0000000000">
+        </div>
+        <button class="btn" id="btn-consultar">Consultar</button>
+        <div class="ajuda" style="max-width: 260px;">Números com menos de 10 dígitos são completados com zeros à esquerda.</div>
+      </div>
+
+      <div id="consulta-mensagem"></div>
+
+      <div class="consulta-corpo" id="consulta-corpo" hidden>
+        <div class="consulta-esq">
+          <div class="consulta-cabecalho">
+            <div style="display: flex; align-items: flex-start; gap: 20px;">
+              <div style="min-width: 0;">
+                <div class="rotulo" style="color: var(--navy);">LANÇAMENTO <span id="lanc-numero"></span></div>
+                <h2 class="consulta-nome" id="lanc-nome"></h2>
+                <div class="ajuda" style="font-size: 13px; margin-top: 6px;" id="lanc-sub"></div>
+              </div>
+              <div class="consulta-totais">
+                <div>
+                  <div class="rotulo-mini">COTAS EM ABERTO</div>
+                  <div class="valor" id="lanc-abertas">0</div>
+                </div>
+                <div>
+                  <div class="rotulo-mini">TOTAL DO LANÇAMENTO</div>
+                  <div class="valor" id="lanc-total">—</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cadastro" id="lanc-cadastro"></div>
+
+            <div class="destaque" id="lanc-obs-bloco" style="margin-top: 20px;" hidden>
+              <div class="rotulo-mini" style="color: var(--navy);">OBSERVAÇÕES DO LANÇAMENTO</div>
+              <div class="destaque-texto" id="lanc-obs"></div>
+            </div>
+          </div>
+
+          <div class="cotas-bloco">
+            <div class="cabecalho-secao" style="justify-content: flex-start;">
+              <h3 class="secao">Relação de cotas</h3>
+              <span class="ajuda" id="resumo-cotas"></span>
+              <div style="margin-left: auto; display: flex; gap: 10px;">
+                <button class="btn-linha" id="btn-sel-abertas">Selecionar em aberto</button>
+                <button class="btn-linha" id="btn-limpar">Limpar</button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 44px;"></th><th>COTA</th><th>PAGAR ATÉ</th>
+                  <th class="dir">VALOR</th><th>SITUAÇÃO</th><th>LINHA DIGITÁVEL</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-cotas"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="consulta-dir">
+          <div class="cabecalho-secao"><h3 class="secao">Documento</h3></div>
+          <div class="doc-preview" style="margin-top: 12px;">
+            <div class="doc-topo">
+              <div>GOVERNO DO<br>DISTRITO FEDERAL</div>
+              <div style="color: var(--navy);">DF LEGAL</div>
+            </div>
+            <div class="doc-titulo">Lançamento de Preço Público — Puxadinhos Asa Sul</div>
+            <div class="doc-linha" style="width: 96%;"></div>
+            <div class="doc-linha" style="width: 88%;"></div>
+            <div class="doc-linha" style="width: 92%;"></div>
+            <div class="doc-linha" style="width: 74%;"></div>
+            <div class="doc-linha" style="width: 90%;"></div>
+            <div class="doc-fichas" id="doc-fichas"></div>
+          </div>
+          <div class="doc-meta">
+            <div><div class="rotulo-mini">PÁGINAS</div><div class="valor" id="doc-paginas">1</div></div>
+            <div><div class="rotulo-mini">FICHAS/PÁGINA</div><div class="valor">6</div></div>
+          </div>
+          <p class="ajuda" style="font-size: 11.5px; margin-top: 14px;">Carta explicativa + dados cadastrais na primeira página; fichas com código de barras nas seguintes.</p>
+        </div>
+      </div>
+
+      <div class="rodape-acao" id="rodape-acao" hidden>
+        <div>
+          <div class="rotulo-mini">SELECIONADAS</div>
+          <div class="valor" id="selecao-label">0 de 0 cotas</div>
+        </div>
+        <div style="border-left: 2px solid var(--linha-forte); padding-left: 20px;">
+          <div class="rotulo-mini">SOMA SELECIONADA</div>
+          <div class="valor soma" id="soma-label">R$ 0,00</div>
+        </div>
+        <div style="margin-left: auto; display: flex; gap: 12px;">
+          <button class="btn-linha" id="btn-preview" style="padding: 12px 18px; font-size: 13px; font-weight: 700;">Abrir último PDF</button>
+          <button class="btn" id="btn-gerar" style="padding: 12px 22px;">Selecione uma cota</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ LOTE ============ -->
+    <section class="tela" id="tela-lote">
+      <div class="lote">
+        <div class="lote-esq">
+          <div class="cabecalho-secao"><h3 class="secao">Números do lote</h3></div>
+          <label class="rotulo" style="display: block; margin: 14px 0 6px;">UM LANÇAMENTO POR LINHA</label>
+          <textarea class="lote-textarea" id="lote-texto" rows="9" placeholder="0002458731&#10;0002451190"></textarea>
+          <p class="ajuda" style="margin-top: 8px;">Ou cole uma coluna de planilha. Cada lançamento gera um PDF próprio, nomeado pelo número.</p>
+          <button class="btn" id="btn-lote" style="margin-top: 16px; width: 100%; text-align: left; padding: 14px 16px;">Processar lote</button>
+          <div class="lote-contadores">
+            <div><div class="rotulo-mini">CONCLUÍDOS</div><div class="valor" id="lote-concluidos">0</div></div>
+            <div><div class="rotulo-mini">COM FALHA</div><div class="valor" style="color: var(--navy);" id="lote-falhas">0</div></div>
+          </div>
+        </div>
+
+        <div class="lote-dir">
+          <div class="cabecalho-secao" style="justify-content: flex-start;">
+            <h3 class="secao">Fila de processamento</h3>
+            <span class="ajuda" id="lote-resumo">nenhum lote em andamento</span>
+            <button class="btn-linha" id="btn-lote-zip" style="margin-left: auto;">Baixar tudo (.zip)</button>
+          </div>
+          <div id="lote-fila"><div class="vazio">Nenhum lançamento na fila.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HISTÓRICO ============ -->
+    <section class="tela" id="tela-historico">
+      <div style="padding: 26px 32px;">
+        <div style="display: flex; align-items: flex-end; gap: 16px; border-bottom: 2px solid var(--linha-forte); padding-bottom: 14px;">
+          <div style="flex: 0 0 260px;">
+            <label class="rotulo" style="display: block; margin-bottom: 6px;">BUSCAR</label>
+            <input class="campo" id="historico-busca" placeholder="Número ou nome">
+          </div>
+          <div style="display: flex; border: 2px solid var(--linha-forte);">
+            <button class="seg ativo" data-filtro="Todos">Todos</button>
+            <button class="seg" data-filtro="Emitidos">Emitidos</button>
+            <button class="seg" data-filtro="Com falha">Com falha</button>
+          </div>
+          <div class="ajuda" style="margin-left: auto;" id="historico-resumo"></div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>LANÇAMENTO</th><th>INTERESSADO</th><th>COTAS</th><th class="dir">VALOR</th>
+                <th>EMITIDO</th><th>SITUAÇÃO</th><th class="dir">AÇÃO</th></tr>
+          </thead>
+          <tbody id="tabela-historico"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ CONSULTA PÚBLICA ============ -->
+    <section class="tela" id="tela-publica">
+      <div class="publica">
+        <div class="publica-conteudo">
+          <div class="kicker" style="color: var(--navy);">CONSULTA PÚBLICA</div>
+          <h2>Emita os boletos do seu preço público</h2>
+          <p class="intro">Cobrança pela ocupação de área pública por estabelecimentos no Comércio Local Sul, prevista na LC 998/2022 e no Decreto 43.609/2022. Informe o número do lançamento que consta na correspondência recebida.</p>
+
+          <div class="publica-busca">
+            <div style="flex: 1;">
+              <label class="rotulo" style="display: block; margin-bottom: 6px;">NÚMERO DO LANÇAMENTO</label>
+              <input class="campo campo-numero" id="publica-numero" style="background: #fff; padding: 14px; font-size: 22px; letter-spacing: 0.1em;" placeholder="0000000000">
+            </div>
+            <button class="btn" id="btn-publica" style="padding: 17px 26px; font-size: 14px;">Consultar</button>
+          </div>
+
+          <div id="publica-mensagem"></div>
+
+          <div class="publica-resultado" id="publica-resultado" hidden>
+            <div class="publica-interessado">
+              <div class="rotulo-mini">INTERESSADO</div>
+              <div style="font-size: 18px; font-weight: 800; margin-top: 4px;" id="publica-nome"></div>
+              <div class="ajuda" style="font-size: 12.5px; margin-top: 4px;" id="publica-sub"></div>
+            </div>
+            <div id="publica-cotas"></div>
+            <div style="padding: 16px 20px; display: flex; align-items: center; gap: 16px;">
+              <div class="ajuda" style="font-size: 12.5px; max-width: 46ch;">Precisa contestar ou revisar a cobrança? Procure um Núcleo de Atendimento ao Cidadão da DF Legal.</div>
+              <button class="btn-linha" id="btn-publica-tudo" style="margin-left: auto; padding: 11px 16px; font-weight: 700;">Baixar todas em um PDF</button>
+            </div>
+          </div>
+
+          <div class="destaque" style="margin-top: 28px; padding: 18px 20px;">
+            <div class="rotulo-mini" style="color: var(--navy);">ATENÇÃO</div>
+            <div class="destaque-texto" style="font-size: 13px; max-width: 70ch;">Esta cobrança é independente do IPTU. O atraso pode gerar multa, juros, inscrição em dívida ativa e protesto em cartório. Débitos de anos anteriores podem ser parcelados junto à DF Legal.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
