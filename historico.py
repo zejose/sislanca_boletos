@@ -13,12 +13,26 @@ _LOCK = threading.Lock()
 DIAS_SEMANA = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"]
 
 
+def _unicos_por_lancamento(registros):
+    """Um lançamento aparece uma única vez, na sua emissão mais recente —
+    reemitir o mesmo número atualiza a linha em vez de criar outra."""
+    registros = sorted(registros, key=lambda r: r.get("quando") or "", reverse=True)
+    vistos = set()
+    unicos = []
+    for reg in registros:
+        if reg.get("numero") in vistos:
+            continue
+        vistos.add(reg.get("numero"))
+        unicos.append(reg)
+    return unicos
+
+
 def _carregar():
     if not os.path.exists(ARQUIVO):
         return []
     try:
         with open(ARQUIVO, encoding="utf-8") as f:
-            return json.load(f)
+            return _unicos_por_lancamento(json.load(f))
     except (OSError, json.JSONDecodeError):
         return []
 
@@ -31,7 +45,7 @@ def _salvar(registros):
 
 def registrar(numero, nome, cotas_emitidas, cotas_totais, valor, situacao, detalhe=""):
     with _LOCK:
-        registros = _carregar()
+        registros = [r for r in _carregar() if r.get("numero") != numero]
         registros.insert(0, {
             "numero": numero,
             "nome": nome,
