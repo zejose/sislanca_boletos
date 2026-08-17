@@ -13,6 +13,10 @@
 
 * { box-sizing: border-box; }
 
+/* Regras de classe com display (grid/flex) vencem o [hidden] do navegador —
+   sem isto, blocos escondidos pelo JS continuariam aparecendo vazios. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   background: var(--fundo);
@@ -303,6 +307,17 @@ tr.cota.marcada .check { border-color: var(--navy); background: var(--navy); }
 .fila-progresso { height: 6px; background: #d7d3d3; margin-top: 8px; }
 .fila-progresso > div { height: 6px; background: var(--navy); }
 .fila-detalhe { width: 140px; font-size: 12px; color: var(--cinza); }
+/* Motivo de falha é uma frase inteira: ganha mais espaço e quebra em até
+   três linhas, com o texto completo no title (tooltip). */
+.fila-detalhe.falha {
+  width: 300px;
+  color: #7a1616;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
 
 /* ---------- Consulta pública ---------- */
 

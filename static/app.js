@@ -58,6 +58,13 @@ async function pedir(url, opcoes) {
   return dados;
 }
 
+/** Escapa texto que vai para dentro de um atributo HTML (title, etc.). */
+function escapar(texto) {
+  return String(texto ?? "")
+    .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+}
+
 /* ---------------- Sessão ---------------- */
 
 function pintarSessao(s) {
@@ -300,7 +307,7 @@ function pintarLote(dados) {
             <div class="fila-nome">${j.nome}</div>
             <div class="fila-progresso"><div style="width: ${j.pct}%;"></div></div>
           </div>
-          <div class="fila-detalhe">${j.detalhe}</div>
+          <div class="fila-detalhe${j.status === "Falha" ? " falha" : ""}" title="${escapar(j.detalhe)}">${j.detalhe}</div>
           <span class="${classeTag(j.status)}" style="width: 96px;">${j.status}</span>
         </div>`).join("")
     : `<div class="vazio">Nenhum lançamento na fila.</div>`;

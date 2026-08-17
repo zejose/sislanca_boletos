@@ -228,7 +228,7 @@ def _processar_lote():
         except Exception as e:
             historico.registrar(numero, item.get("nome") or "—", 0, 0,
                                 "R$ 0,00", "Falha", str(e))
-            item.update(status="Falha", pct=100, detalhe=str(e)[:60])
+            item.update(status="Falha", pct=100, detalhe=str(e))
 
     with _lote_lock:
         _lote["rodando"] = False
