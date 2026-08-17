@@ -1,5 +1,9 @@
 """Sessão autenticada no SISLANCA via Playwright.
 
+As credenciais são informadas na interface a cada login e usadas só para
+preencher o formulário — nunca são gravadas em disco nem mantidas depois que
+a sessão é encerrada.
+
 O navegador é mantido aberto entre requisições para preservar a sessão; como o
 Playwright síncrono não pode ser usado de várias threads, todo acesso passa
 pelo _LOCK e fica preso à thread que criou a sessão.
@@ -14,8 +18,6 @@ load_dotenv()
 
 BASE_URL = os.environ.get("SISLANCA_BASE_URL", "https://sislanca.fazenda.df.gov.br").rstrip("/")
 LOGIN_URL = f"{BASE_URL}/login"
-USUARIO = os.environ.get("SISLANCA_USER")
-SENHA = os.environ.get("SISLANCA_PASS")
 HEADLESS = os.environ.get("SISLANCA_HEADLESS", "false").strip().lower() in ("1", "true", "sim")
 
 _LOCK = threading.RLock()
@@ -59,11 +61,13 @@ def status():
         return {"logado": True, "usuario": _sessao["usuario"]}
 
 
-def login():
+def login(usuario, senha):
     global _sessao
 
-    if not USUARIO or not SENHA:
-        raise SessaoError("Defina SISLANCA_USER e SISLANCA_PASS no arquivo .env.")
+    usuario = (usuario or "").strip()
+    senha = senha or ""
+    if not usuario or not senha:
+        raise SessaoError("Informe o CPF e a senha para entrar.")
 
     with _LOCK:
         if _sessao is not None:
@@ -84,24 +88,24 @@ def login():
             cpf_field = page.locator("#cpf")
             cpf_field.click()
             cpf_field.fill("")
-            cpf_field.press_sequentially(USUARIO, delay=40)
+            cpf_field.press_sequentially(usuario, delay=40)
 
             senha_field = page.locator("input[type='password']").first
             senha_field.click()
             senha_field.fill("")
-            senha_field.press_sequentially(SENHA, delay=40)
+            senha_field.press_sequentially(senha, delay=40)
 
             page.locator("button[data-cy='submit-login-form']").click()
             try:
                 page.wait_for_url(lambda url: "/login" not in url, timeout=15000)
             except Exception:
-                raise SessaoError("Login não completou — confira CPF/senha no .env.")
+                raise SessaoError("Login não completou — confira o CPF e a senha.")
 
             page.wait_for_timeout(3000)
             _fechar_popup_se_existir(page)
 
             _sessao = {"pw": pw, "browser": browser, "context": context,
-                       "page": page, "usuario": USUARIO}
+                       "page": page, "usuario": usuario}
         except Exception:
             try:
                 pw.stop()

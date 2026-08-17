@@ -61,23 +61,49 @@ async function pedir(url, opcoes) {
 /* ---------------- Sessão ---------------- */
 
 function pintarSessao(s) {
-  $("sessao-nome").textContent = s.logado ? s.usuario : "Não conectado";
-  $("btn-sessao").textContent = s.logado ? "Sair" : "Entrar";
-  $("btn-sessao").dataset.logado = s.logado ? "1" : "";
+  $("form-login").hidden = s.logado;
+  $("sessao-ativa").hidden = !s.logado;
+  if (s.logado) {
+    $("sessao-nome").textContent = s.usuario;
+    $("login-senha").value = "";
+  }
 }
 
-async function alternarSessao() {
-  const btn = $("btn-sessao");
-  const logado = btn.dataset.logado === "1";
+function erroSessao(mensagem) {
+  const alvo = $("login-erro");
+  alvo.hidden = !mensagem;
+  alvo.textContent = mensagem || "";
+}
+
+async function entrar(evento) {
+  evento.preventDefault();
+  const btn = $("btn-entrar");
+  erroSessao("");
   btn.disabled = true;
-  btn.textContent = logado ? "Saindo..." : "Conectando...";
+  btn.textContent = "Conectando…";
   try {
-    pintarSessao(await pedir(logado ? "/api/logout" : "/api/login", { method: "POST" }));
+    pintarSessao(await pedir("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usuario: $("login-cpf").value, senha: $("login-senha").value }),
+    }));
   } catch (e) {
-    alert(e.message);
-    pintarSessao({ logado: false });
+    erroSessao(e.message);
   } finally {
     btn.disabled = false;
+    btn.textContent = "Entrar";
+  }
+}
+
+async function sair() {
+  const btn = $("btn-sair");
+  btn.disabled = true;
+  btn.textContent = "Saindo…";
+  try {
+    pintarSessao(await pedir("/api/logout", { method: "POST" }));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Sair";
   }
 }
 
@@ -425,7 +451,8 @@ document.querySelectorAll("[data-filtro]").forEach((b) =>
     carregarHistorico();
   }));
 
-$("btn-sessao").addEventListener("click", alternarSessao);
+$("form-login").addEventListener("submit", entrar);
+$("btn-sair").addEventListener("click", sair);
 $("btn-consultar").addEventListener("click", consultar);
 $("input-numero").addEventListener("keydown", (e) => { if (e.key === "Enter") consultar(); });
 $("btn-publica").addEventListener("click", consultarPublica);

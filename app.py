@@ -112,8 +112,9 @@ def api_sessao():
 
 @app.route("/api/login", methods=["POST"])
 def api_login():
+    body = request.get_json(silent=True) or {}
     try:
-        return jsonify(sislanca_login.login())
+        return jsonify(sislanca_login.login(body.get("usuario"), body.get("senha")))
     except Exception as e:
         return jsonify({"erro": str(e)}), 400
 

@@ -68,6 +68,8 @@ input, button, textarea { font-family: inherit; }
 .sessao { margin-top: auto; border-top: 2px solid var(--linha-forte); padding: 16px 20px; }
 .sessao-nome { font-size: 13px; font-weight: 600; margin-top: 6px; }
 .sessao-org { font-size: 11px; color: var(--cinza); }
+.campo-sessao { padding: 7px 9px; font-size: 12px; }
+.erro-sessao { margin-top: 8px; font-size: 11px; line-height: 1.35; color: #7a1616; }
 
 /* ---------- Estrutura principal ---------- */
 
