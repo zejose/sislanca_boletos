@@ -167,6 +167,16 @@ async function consultar() {
   }
 }
 
+function limparConsulta() {
+  $("input-numero").value = "";
+  $("consulta-mensagem").innerHTML = "";
+  $("consulta-corpo").hidden = true;
+  $("rodape-acao").hidden = true;
+  estado.lancamento = null;
+  estado.selecionadas.clear();
+  $("input-numero").focus();
+}
+
 function pintarLancamento() {
   const l = estado.lancamento;
   const d = l.dados;
@@ -257,7 +267,11 @@ async function gerarPdf() {
     const r = await pedir("/api/gerar-pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ numero: estado.lancamento.numero, cotas: [...estado.selecionadas] }),
+      body: JSON.stringify({
+        numero: estado.lancamento.numero,
+        cotas: [...estado.selecionadas],
+        texto_carta: $("carta-texto").value,
+      }),
     });
     estado.ultimoPdf = r.download;
     window.open(r.download, "_blank");
@@ -357,7 +371,7 @@ async function baixarBoleto(numero, botao) {
     const r = await pedir("/api/gerar-pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ numero, cotas: [botao.dataset.baixar] }),
+      body: JSON.stringify({ numero, cotas: [botao.dataset.baixar], incluir_carta: false }),
     });
     window.open(r.download, "_blank");
   } catch (e) {
@@ -418,7 +432,7 @@ async function consultarPublica() {
         const r = await pedir("/api/gerar-pdf", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ numero: l.numero, cotas: l.abertas }),
+          body: JSON.stringify({ numero: l.numero, cotas: l.abertas, incluir_carta: false }),
         });
         window.open(r.download, "_blank");
       } catch (e) {
@@ -461,6 +475,7 @@ document.querySelectorAll("[data-filtro]").forEach((b) =>
 $("form-login").addEventListener("submit", entrar);
 $("btn-sair").addEventListener("click", sair);
 $("btn-consultar").addEventListener("click", consultar);
+$("btn-limpar-consulta").addEventListener("click", limparConsulta);
 $("input-numero").addEventListener("keydown", (e) => { if (e.key === "Enter") consultar(); });
 $("btn-publica").addEventListener("click", consultarPublica);
 $("publica-numero").addEventListener("keydown", (e) => { if (e.key === "Enter") consultarPublica(); });
@@ -485,6 +500,18 @@ $("btn-sel-abertas").addEventListener("click", () => {
 $("btn-limpar").addEventListener("click", () => {
   estado.selecionadas.clear();
   pintarLancamento();
+});
+
+/* A carta padrão fica guardada como veio do servidor, para o botão restaurar. */
+const CARTA_PADRAO = $("carta-texto").value;
+
+$("btn-carta-limpar").addEventListener("click", () => {
+  $("carta-texto").value = "";
+  $("carta-texto").focus();
+});
+
+$("btn-carta-padrao").addEventListener("click", () => {
+  $("carta-texto").value = CARTA_PADRAO;
 });
 
 pedir("/api/sessao").then(pintarSessao).catch(() => {});

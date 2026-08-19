@@ -88,11 +88,13 @@ def consultar_lancamento(numero, com_linha_digitavel=True):
     return dados, cotas, validas, observacoes
 
 
-def gerar_pdf_lancamento(numero, cotas_escolhidas, dados, observacoes, sufixo=""):
+def gerar_pdf_lancamento(numero, cotas_escolhidas, dados, observacoes, sufixo="",
+                         texto_carta=None, incluir_carta=True):
     os.makedirs(boletopp.PASTA_SAIDA, exist_ok=True)
     caminho = os.path.join(boletopp.PASTA_SAIDA, f"{numero}{sufixo}.pdf")
     boletopp.gerar_pdf(caminho, dados, cotas_escolhidas, observacoes,
-                       CAMINHO_LOGO, CAMINHO_SELO)
+                       CAMINHO_LOGO, CAMINHO_SELO, texto_carta=texto_carta,
+                       incluir_carta=incluir_carta)
     return caminho
 
 
@@ -110,7 +112,7 @@ def _cotas_do_total(cotas):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", texto_carta=boletopp.TEXTO_CARTA)
 
 
 @app.route("/logo")
@@ -164,6 +166,9 @@ def api_gerar_pdf():
     body = request.get_json(silent=True) or {}
     numero = normalizar_numero(body.get("numero"))
     escolhidas = set(body.get("cotas") or [])
+    # A consulta pública pede o PDF sem a carta explicativa.
+    incluir_carta = bool(body.get("incluir_carta", True))
+    texto_carta = body.get("texto_carta")
 
     if not numero or not escolhidas:
         return jsonify({"erro": "Informe o lançamento e ao menos uma cota."}), 400
@@ -177,11 +182,15 @@ def api_gerar_pdf():
     if not selecionadas:
         return jsonify({"erro": "As cotas escolhidas não estão em aberto."}), 400
 
-    # Um boleto avulso não pode sobrescrever o PDF completo do lançamento.
+    # Um boleto avulso não pode sobrescrever o PDF completo do lançamento —
+    # nem a versão sem carta da consulta pública pode sobrescrever a interna.
     sufixo = f"_cota{selecionadas[0]['cota']}" if len(selecionadas) == 1 < len(validas) else ""
+    if not incluir_carta:
+        sufixo += "_publico"
 
     try:
-        gerar_pdf_lancamento(numero, selecionadas, dados, observacoes, sufixo)
+        gerar_pdf_lancamento(numero, selecionadas, dados, observacoes, sufixo,
+                             texto_carta=texto_carta, incluir_carta=incluir_carta)
     except Exception as e:
         historico.registrar(numero, dados.get("nome"), 0, len(validas),
                             "R$ 0,00", "Falha", str(e))

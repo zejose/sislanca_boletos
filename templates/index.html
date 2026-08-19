@@ -105,6 +105,7 @@
           <input class="campo campo-numero" id="input-numero" placeholder="0000000000">
         </div>
         <button class="btn" id="btn-consultar">Consultar</button>
+        <button class="btn-linha" id="btn-limpar-consulta" style="padding: 12px 18px;">Limpar</button>
         <div class="ajuda" style="max-width: 260px;">Números com menos de 10 dígitos são completados com zeros à esquerda.</div>
       </div>
 
@@ -158,6 +159,21 @@
               <tbody id="tabela-cotas"></tbody>
             </table>
           </div>
+
+          <div class="carta-bloco">
+            <div class="cabecalho-secao" style="justify-content: flex-start;">
+              <h3 class="secao">Texto da carta</h3>
+              <span class="ajuda">aparece na primeira página do PDF</span>
+              <div style="margin-left: auto; display: flex; gap: 10px;">
+                <button class="btn-linha" id="btn-carta-padrao">Restaurar padrão</button>
+                <button class="btn-linha" id="btn-carta-limpar">Limpar</button>
+              </div>
+            </div>
+            <textarea class="lote-textarea" id="carta-texto" rows="10"
+                      style="margin-top: 12px;"
+                      placeholder="Em branco, o PDF sai com o texto padrão.">{{ texto_carta }}</textarea>
+            <p class="ajuda" style="margin-top: 8px;">Separe os parágrafos com uma linha em branco. Se a caixa ficar vazia, o PDF usa o texto padrão.</p>
+          </div>
         </div>
 
         <div class="consulta-dir">
@@ -167,7 +183,7 @@
               <div>GOVERNO DO<br>DISTRITO FEDERAL</div>
               <div style="color: var(--navy);">DF LEGAL</div>
             </div>
-            <div class="doc-titulo">Lançamento de Preço Público — Puxadinhos Asa Sul</div>
+            <div class="doc-titulo" id="doc-titulo">Lançamento realizado pela DF Legal</div>
             <div class="doc-linha" style="width: 96%;"></div>
             <div class="doc-linha" style="width: 88%;"></div>
             <div class="doc-linha" style="width: 92%;"></div>

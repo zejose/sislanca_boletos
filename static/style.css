@@ -251,7 +251,8 @@ tr.cota.marcada .check { border-color: var(--navy); background: var(--navy); }
 .destaque { border-left: 2px solid var(--navy); background: var(--fundo-alt); padding: 14px 16px; }
 .destaque-texto { font-size: 12.5px; line-height: 1.5; margin-top: 6px; max-width: 78ch; }
 
-.cotas-bloco { padding: 22px 32px 120px; }
+.cotas-bloco { padding: 22px 32px 0; }
+.carta-bloco { padding: 26px 32px 120px; }
 .consulta-dir { position: sticky; top: 0; padding: 24px; }
 
 .doc-preview { border: 2px solid var(--linha-forte); background: #fff; padding: 14px; }

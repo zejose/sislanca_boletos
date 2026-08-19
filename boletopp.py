@@ -64,6 +64,8 @@ LINEC = colors.HexColor("#DDE2EA")
 PAGE_W, PAGE_H = A4
 MARGIN = 18 * mm
 
+TITULO_CAPA = "Lançamento realizado pela DF Legal"
+
 TEXTO_CARTA = """Olá!
 
 Este comunicado está relacionado à cobrança do preço público devido pela ocupação de área pública pelo seu estabelecimento comercial, localizado no Comércio Local Sul, na Asa Sul, Plano Piloto.
@@ -526,7 +528,11 @@ class NumberedCanvas(canvas_mod.Canvas):
 # Montagem do PDF final
 # =====================================================================
 
-def gerar_pdf(caminho_saida, dados, cotas, observacoes, caminho_logo, caminho_selo=None):
+def gerar_pdf(caminho_saida, dados, cotas, observacoes, caminho_logo,
+              caminho_selo=None, texto_carta=None, incluir_carta=True):
+    # A tela de consulta pode reescrever a carta; em branco vale o padrão.
+    # A consulta pública sai sem carta: só dados cadastrais e fichas.
+    texto_carta = (texto_carta or "").strip() or TEXTO_CARTA
     margem_capa = 40 * mm    # espaço reservado para a faixa completa (com título)
     margem_fichas = 26 * mm  # espaço reservado para a faixa compacta (só logo)
 
@@ -541,7 +547,7 @@ def gerar_pdf(caminho_saida, dados, cotas, observacoes, caminho_logo, caminho_se
 
     def _pagina_capa(c, _doc):
         _desenhar_faixa_topo(c, caminho_logo,
-                              titulo="Lançamento de Preço Público – Puxadinhos Asa Sul")
+                              titulo=TITULO_CAPA)
         _desenhar_rodape_padrao(c, "SISLANCA — DF Legal")
         if caminho_marca_dagua:
             largura, altura = A4
@@ -609,8 +615,9 @@ def gerar_pdf(caminho_saida, dados, cotas, observacoes, caminho_logo, caminho_se
 
     # ---- Página 1 (template "Capa"): título já vai dentro da própria
     # faixa navy (ver _pagina_capa) — aqui começa direto o corpo da carta.
-    for paragrafo in TEXTO_CARTA.split("\n\n"):
-        story.append(Paragraph(paragrafo.replace("\n", " "), body_style))
+    if incluir_carta:
+        for paragrafo in texto_carta.split("\n\n"):
+            story.append(Paragraph(paragrafo.replace("\n", " "), body_style))
 
     # ---- Dados cadastrais + Observações, num único cartão ----
     conteudo_cadastro = [cabecalho_secao("Dados cadastrais")]
