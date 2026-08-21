@@ -1,0 +1,8 @@
+{
+  // Flask, reportlab, requests e playwright moram no .venv deste projeto, não no
+  // Python global. Sem esta linha o Pylance analisa com o interpretador global e
+  // acusa "Import could not be resolved" em imports que funcionam.
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+  "python.analysis.extraPaths": ["${workspaceFolder}"],
+  "python.terminal.activateEnvironment": true
+}
