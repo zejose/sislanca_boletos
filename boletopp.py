@@ -656,15 +656,25 @@ def gerar_pdf(caminho_saida, dados, cotas, observacoes, caminho_logo,
     ]))
     conteudo_cadastro.append(cadastro_tbl)
 
-    if observacoes:
-        for k, v in observacoes.items():
-            if "LOCALIZA" in k.replace("É", "E").replace("Í", "I"):
-                conteudo_cadastro.append(HRFlowable(
-                    width="100%", thickness=0.6, color=LINEC, spaceBefore=8, spaceAfter=6))
-                conteudo_cadastro.append(cabecalho_secao("Observações do lançamento"))
-                texto_obs = v if len(v) <= 260 else v[:257] + "..."
-                conteudo_cadastro.append(Paragraph(texto_obs, obs_value_style))
-                break
+    def _normalizar(txt):
+        return (txt.replace("É", "E").replace("Í", "I")
+                   .replace("Ã", "A").replace("Ç", "C").replace("Ô", "O"))
+
+    # o cabeçalho da seção ("INFORMAÇÕES PREVISTAS EM INSTRUÇÃO...") também
+    # vira uma chave do dict (é um dos rótulos que separam o texto), mas não
+    # é uma observação em si -- só o texto que introduz as outras
+    campos_obs_validos = [
+        (k, v) for k, v in (observacoes or {}).items()
+        if v and "INFORMACOES PREVISTAS" not in _normalizar(k)
+    ]
+    if campos_obs_validos:
+        conteudo_cadastro.append(HRFlowable(
+            width="100%", thickness=0.6, color=LINEC, spaceBefore=8, spaceAfter=6))
+        conteudo_cadastro.append(cabecalho_secao("Observações do lançamento"))
+        for k, v in campos_obs_validos:
+            texto_obs = v if len(v) <= 260 else v[:257] + "..."
+            conteudo_cadastro.append(Paragraph(k, obs_label_style))
+            conteudo_cadastro.append(Paragraph(texto_obs, obs_value_style))
 
     cartao_cadastro = Table([[conteudo_cadastro]], colWidths=[173.8 * mm])
     cartao_cadastro.setStyle(TableStyle([
