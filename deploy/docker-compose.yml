@@ -1,6 +1,14 @@
 # Producao do SISLANCA Boletos. Entra na rede "forense" (externa, criada por
 # /opt/forense/compose) so para o Caddy que ja roda la conseguir falar com
 # este container pelo nome -- mesmo padrao do Cadastro PP.
+#
+# SEMPRE rode com -p explicito: `docker compose -p boletos ...`. Sem -p, o
+# nome do projeto vem do nome da PASTA ("deploy") -- igual em varios outros
+# projetos desta VPS. Dois projetos com o mesmo nome default fazem o
+# Compose tratar os containers um do outro como "orfaos" e REMOVER o
+# container do outro projeto num `up`/`down`. Foi exatamente isso que
+# derrubou o Cadastro PP de producao ao subir este projeto sem -p
+# (04/10/2026) -- os volumes nomeados sobrevivem, o container nao.
 services:
   app:
     build:
