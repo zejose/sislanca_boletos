@@ -44,7 +44,10 @@ from reportlab.platypus import (
 )
 
 BASE_URL = "https://www2.agencianet.fazenda.df.gov.br/extranet.publica/GerarBoletoInternet"
-PASTA_SAIDA = r"C:\PP"
+# C:\PP é o default de sempre, pra quem já usa isso na própria máquina Windows
+# continuar funcionando sem precisar configurar nada. PASTA_SAIDA no ambiente
+# é o que permite rodar em container Linux, onde esse caminho não existe.
+PASTA_SAIDA = os.environ.get("PASTA_SAIDA", r"C:\PP")
 ORGAO_DF_LEGAL = "092"  # órgão gerador dos lançamentos da DF Legal
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 COTAS_POR_PAGINA = 6

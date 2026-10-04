@@ -1,0 +1,33 @@
+# Producao do SISLANCA Boletos. Entra na rede "forense" (externa, criada por
+# /opt/forense/compose) so para o Caddy que ja roda la conseguir falar com
+# este container pelo nome -- mesmo padrao do Cadastro PP.
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: boletos
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - dados:/app/data
+      - saida:/app/saida
+    networks:
+      - forense
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/painel')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+networks:
+  forense:
+    external: true
+
+volumes:
+  dados:
+    name: boletos_dados
+  saida:
+    name: boletos_saida

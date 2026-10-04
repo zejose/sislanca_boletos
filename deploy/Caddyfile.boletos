@@ -1,0 +1,25 @@
+# Bloco a acrescentar em /opt/forense/compose/Caddyfile (append -- nao mexe
+# em nada que ja existe la). TLS automatico (Let's Encrypt) por conta do
+# Caddy; o container "boletos" entra na rede "forense" so para isto.
+#
+# Sem login proprio no app (decisao do usuario, ciente do risco: quem tiver
+# o endereco consegue usar a sessao SISLANCA ativa sem senha nenhuma) -- se
+# isso mudar, e aqui que entraria basic_auth.
+
+boletos.cordocerrado.com.br {
+	encode zstd gzip
+
+	header {
+		-Server
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Robots-Tag "noindex, nofollow"
+	}
+
+	reverse_proxy boletos:5000
+
+	handle_errors 502 503 504 {
+		respond "SISLANCA Boletos: aplicacao indisponivel no momento." 503
+	}
+}

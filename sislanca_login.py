@@ -28,6 +28,28 @@ class SessaoError(RuntimeError):
     pass
 
 
+def _so_digitos(s):
+    return "".join(c for c in s if c.isdigit())
+
+
+def _preencher_com_confianca(campo, valor, *, normalizar=lambda s: s, tentativas=4):
+    """Digita e confere: o campo de CPF do SISLANCA é mascarado (reformata a
+    cada tecla), e num servidor mais lento que desktop (headless, CPU
+    compartilhada) a digitação programática pode perder ou embaralhar teclas
+    mesmo com atraso fixo -- mesmo problema já visto e corrigido no Cadastro
+    PP (app/services/autos_infracao/sislanca/tela.py). Em vez de confiar num
+    número de milissegundos, confere o valor lido de volta do campo e tenta
+    de novo, com atraso maior a cada tentativa, até bater certo."""
+    delay = 40
+    for _ in range(tentativas):
+        campo.fill("")
+        campo.press_sequentially(valor, delay=delay)
+        if normalizar(campo.input_value()) == normalizar(valor):
+            return
+        delay += 60
+    raise SessaoError("Não foi possível preencher o formulário de login de forma confiável.")
+
+
 def _fechar_popup_se_existir(page):
     page.keyboard.press("Escape")
     page.wait_for_timeout(500)
@@ -86,14 +108,9 @@ def login(usuario, senha):
             _fechar_popup_se_existir(page)
 
             cpf_field = page.locator("#cpf")
-            cpf_field.click()
-            cpf_field.fill("")
-            cpf_field.press_sequentially(usuario, delay=40)
-
+            _preencher_com_confianca(cpf_field, usuario, normalizar=_so_digitos)
             senha_field = page.locator("input[type='password']").first
-            senha_field.click()
-            senha_field.fill("")
-            senha_field.press_sequentially(senha, delay=40)
+            _preencher_com_confianca(senha_field, senha)
 
             page.locator("button[data-cy='submit-login-form']").click()
             try:
