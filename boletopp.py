@@ -69,19 +69,13 @@ MARGIN = 18 * mm
 
 TITULO_CAPA = "Lançamento realizado pela DF Legal"
 
-TEXTO_CARTA = """Olá!
+TEXTO_CARTA = """As guias de recolhimento para pagamento estão na próxima página.
 
-Este comunicado está relacionado à cobrança do preço público devido pela ocupação de área pública pelo seu estabelecimento comercial, localizado no Comércio Local Sul, na Asa Sul, Plano Piloto.
+Para emitir novo boleto após a data de vencimento, para revisar ou encerrar a cobrança, procure um Núcleo de Atendimento da DF Legal. Nos Núcleos também é possível solicitar o parcelamento de débitos de anos anteriores.
 
-A ocupação de área pública por estabelecimentos comerciais no Comercio Local Sul – CLS (os "puxadinhos da Asa Sul"), é regulamentada pela Lei Complementar nº 998, de 11 de janeiro de 2022 e pelo Decreto 43.609, de 1º de agosto de 2022. O preço público é a cobrança devida pela utilização desta área pública. O art. 16 da LC 998/2022 e o art. 30 do Decreto 43.609/2022 definem a competência da DF Legal para a cobrança do preço público e estabelecem a fórmula de cálculo das cobranças.
+Pague os boletos em dia, para evitar medidas como: multas e juros moratórios, inscrição em dívida ativa, exclusão do Simples Nacional, ajuizamento de ação e protesto de títulos.
 
-Ressaltamos que esta cobrança é independente daquela feita pelo IPTU. O IPTU abrange, eventualmente, toda a área construída do imóvel, ainda que proveniente de ocupação de área pública. O preço público restringe-se à cobrança de contraprestação pela utilização da área pública, que pertence ao Distrito Federal. A cobrança do IPTU, portanto, não dispensa a exigibilidade do pagamento do preço público.
-
-Esta cobrança do preço público será feita todos os anos. Para contestar ou revisar a cobrança, procure um Núcleo de Atendimento ao Cidadão da DF Legal, cujos endereços estão disponíveis no site https://www.dflegal.df.gov.br/folder-locais-nucleos-de-atendimento-ao-cidadao.
-
-O pagamento em dia do preço público é uma obrigação de todos que ocupam áreas públicas. O atraso no pagamento pode gerar medidas como multa e juros moratórios, inscrição em dívida ativa, protesto em cartório, a exclusão do Simples Nacional e, em casos de atrasos mais longos, até mesmo o ajuizamento de ação de execução. Evite transtornos para a sua atividade: pague o preço público em dia e, se tiver dificuldade para pagar, os débitos de anos anteriores podem ser parcelados junto à DF Legal.
-
-Por fim, cabe ressaltar que o pagamento do preço público, apesar de ser uma obrigação a ser cumprida, não dispensa o particular de regularizar a sua ocupação de área pública. A regularização dos puxadinhos do Plano Piloto deve ser providenciada junto à Administração Regional do Plano Piloto. O pagamento do preço público não autoriza a ocupação nem isenta o particular de fiscalizações ligadas à regularidade da ocupação."""
+Bancos autorizados a receber o pagamento: Banco do Brasil, BRB, Caixa, Bradesco, Itaú, Inter, Santander, Original, Citibank, Banco Mercantil do Brasil, Banco Cooperativo do Brasil."""
 
 
 # =====================================================================
